@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll Animation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #e8959f; overflow-x: hidden; }
+        #scroll-space { height: 8000px; position: relative; z-index: 1; }
+        canvas {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 100vw;
+            max-height: 100vh;
+            z-index: 2;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="scroll-space"></div>
+    <canvas id="c"></canvas>
+    <script>
+        var TOTAL = 224;
+        var canvas = document.getElementById('c');
+        var ctx = canvas.getContext('2d');
+        var imgs = [];
+        var loaded = 0;
+        var cur = -1;
+        var ready = false;
+
+        /* Set canvas size to match image dimensions */
+        function setSize(img) {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            /* Scale to fit viewport */
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            var imgR = img.naturalWidth / img.naturalHeight;
+            var vpR = vw / vh;
+            if (vpR > imgR) {
+                canvas.style.width = vw + 'px';
+                canvas.style.height = (vw / imgR) + 'px';
+            } else {
+                canvas.style.height = vh + 'px';
+                canvas.style.width = (vh * imgR) + 'px';
+            }
+        }
+
+        function draw(i) {
+            var img = imgs[i];
+            if (!img || !img.complete) return;
+            setSize(img);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
+        function tick() {
+            if (!ready) { requestAnimationFrame(tick); return; }
+            var scrollTop = window.scrollY || window.pageYOffset;
+            var maxScroll = document.getElementById('scroll-space').scrollHeight - window.innerHeight;
+            if (maxScroll <= 0) maxScroll = 1;
+            var progress = scrollTop / maxScroll;
+            if (progress < 0) progress = 0;
+            if (progress > 1) progress = 1;
+            var frame = Math.round(progress * (TOTAL - 1));
+            if (frame !== cur) {
+                cur = frame;
+                draw(cur);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        /* Preload all frames */
+        for (var i = 1; i <= TOTAL; i++) {
+            var img = new Image();
+            img.src = './frames/ezgif-frame-' + String(i).padStart(3, '0') + '.jpg';
+            (function(idx, image) {
+                image.onload = image.onerror = function() {
+                    loaded++;
+                    if (loaded === TOTAL) {
+                        ready = true;
+                        cur = 0;
+                        draw(0);
+                    }
+                };
+            })(i - 1, img);
+            imgs[i - 1] = img;
+        }
+
+        window.addEventListener('resize', function() { if (ready && imgs[cur]) draw(cur); });
+        requestAnimationFrame(tick);
+    </script>
+</body>
+</html>

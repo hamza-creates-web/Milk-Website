@@ -1,0 +1,24 @@
+{
+  "name": "milk-website",
+  "version": "1.0.0",
+  "description": "Amul Kool Gold - Exotic Rose Website",
+  "main": "code.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "start": "python -m http.server 8000"
+  },
+  "keywords": [
+    "amul",
+    "milk",
+    "beverage",
+    "website",
+    "responsive"
+  ],
+  "author": "Hamza",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hamza-creates-web/Milk-Website.git"
+  },
+  "homepage": "https://github.com/hamza-creates-web/Milk-Website#readme"
+}
